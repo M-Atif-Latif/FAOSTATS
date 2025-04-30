@@ -5,8 +5,9 @@ from io import StringIO
 import datetime as dt
 import matplotlib.pyplot as plt
 import seaborn as sns
+import io
 
-# Page config with dark theme
+# Page config (no forced theme)
 st.set_page_config(
     page_title="FAOSTAT Explorer", 
     page_icon="🌾", 
@@ -14,102 +15,9 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for dark theme with better contrast
-st.markdown("""
-<style>
-    :root {
-        --primary-color: #4CAF50;
-        --secondary-color: #2E7D32;
-        --background-color: #121212;
-        --surface-color: #1E1E1E;
-        --text-color: #FFFFFF;
-        --text-secondary: #B0B0B0;
-    }
-    
-    .main {
-        background-color: var(--background-color);
-        color: var(--text-color);
-    }
-    
-    .stSelectbox div, .stTextInput div, .stNumberInput div, .stSlider div {
-        background-color: var(--surface-color) !important;
-        color: var(--text-color) !important;
-    }
-    
-    .stSelectbox label, .stTextInput label, .stNumberInput label, .stSlider label {
-        color: var(--text-color) !important;
-    }
-    
-    .stButton>button {
-        background-color: var(--primary-color) !important;
-        color: white !important;
-        border: none !important;
-        font-weight: bold !important;
-    }
-    
-    .stButton>button:hover {
-        background-color: var(--secondary-color) !important;
-    }
-    
-    .stDownloadButton>button {
-        background-color: #1976D2 !important;
-        color: white !important;
-    }
-    
-    .stDataFrame {
-        background-color: var(--surface-color) !important;
-        color: var(--text-color) !important;
-    }
-    
-    .stMetric {
-        background-color: var(--surface-color) !important;
-        border-radius: 8px;
-        padding: 15px;
-    }
-    
-    .stMetric label {
-        color: var(--text-secondary) !important;
-    }
-    
-    .stMetric div {
-        color: var(--text-color) !important;
-        font-size: 24px !important;
-    }
-    
-    .sidebar .sidebar-content {
-        background-color: var(--surface-color) !important;
-    }
-    
-    /* Chart background */
-    .stPlotlyChart, .stPyplot {
-        background-color: var(--surface-color) !important;
-        border-radius: 8px;
-        padding: 10px;
-    }
-    
-    /* Tabs */
-    .stTabs [data-baseweb="tab-list"] {
-        background-color: var(--surface-color) !important;
-        gap: 10px;
-    }
-    
-    .stTabs [data-baseweb="tab"] {
-        background-color: var(--surface-color) !important;
-        color: var(--text-secondary) !important;
-        padding: 10px 20px !important;
-        border-radius: 8px 8px 0 0 !important;
-    }
-    
-    .stTabs [aria-selected="true"] {
-        background-color: var(--primary-color) !important;
-        color: white !important;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# Title with improved contrast
-st.markdown("<h1 style='color: #4CAF50;'>🌾 FAOSTAT Agricultural Data Explorer</h1>", unsafe_allow_html=True)
-st.markdown("<p style='color: #B0B0B0;'>Access global agricultural statistics from the UN Food and Agriculture Organization</p>", unsafe_allow_html=True)
+# Title (no forced color)
+st.title("🌾 FAOSTAT Agricultural Data Explorer")
+st.markdown("Access global agricultural statistics from the UN Food and Agriculture Organization")
 
 # ==============================================
 # FAOSTAT DATA CATALOGUE (Simplified)
@@ -126,27 +34,54 @@ DOMAINS = {
 COMMODITIES = {
     "Crops": {
         "Wheat": 15, "Rice": 27, "Maize": 56, "Soybeans": 236, 
-        "Potatoes": 116, "Tomatoes": 388, "Coffee": 656, "Tea": 667
+        "Potatoes": 116, "Tomatoes": 388, "Coffee": 656, "Tea": 667,
+        "Barley": 78, "Sugarcane": 89, "Cotton": 92, "Bananas": 123,
+        "Oranges": 145, "Apples": 167, "Grapes": 189, "Peanuts": 210
     },
     "Livestock": {
-        "Beef": 867, "Poultry": 1058, "Milk": 882, "Eggs": 1062
+        "Beef": 867, "Poultry": 1058, "Milk": 882, "Eggs": 1062,
+        "Sheep": 1123, "Goat": 1145, "Pork": 1167, "Fish": 1189,
+        "Honey": 1201, "Wool": 1223, "Buffalo": 1245
+    }
+}
+COUNTRIES = {
+    "Americas": {
+        "USA": 231, "Brazil": 21, "Canada": 39, 
+        "Mexico": 142, "Argentina": 10, "Chile": 45, 
+        "Colombia": 32, "Peru": 51, "Venezuela": 58
+    },
+    "Asia": {
+        "China": 351, "India": 100, "Pakistan": 165, 
+        "Japan": 110, "South Korea": 130, "Indonesia": 101, 
+        "Vietnam": 120, "Thailand": 140, "Malaysia": 150
+    },
+    "Europe": {
+        "France": 68, "Germany": 79, "Russia": 185, 
+        "Italy": 106, "United Kingdom": 234, "Spain": 210, 
+        "Netherlands": 150, "Sweden": 160, "Poland": 170
+    },
+    "Africa": {
+        "Nigeria": 159, "South Africa": 205, 
+        "Egypt": 59, "Kenya": 117, "Ethiopia": 62, 
+        "Ghana": 45, "Morocco": 78, "Algeria": 89
+    },
+    "Oceania": {
+        "Australia": 36, "New Zealand": 40, 
+        "Fiji": 90, "Papua New Guinea": 91, "Samoa": 92
+    },
+    "Middle East": {
+        "Saudi Arabia": 250, "Iran": 260, "Turkey": 270, 
+        "Iraq": 280, "Israel": 290, "Jordan": 300
     }
 }
 
-COUNTRIES = {
-    "Americas": {"USA": 231, "Brazil": 21, "Canada": 39},
-    "Asia": {"China": 351, "India": 100, "Pakistan": 165},
-    "Europe": {"France": 68, "Germany": 79, "Russia": 185},
-    "Africa": {"Nigeria": 159, "South Africa": 205}
-}
-
 # ==============================================
-# UI COMPONENTS (Improved Contrast)
+# UI COMPONENTS (no forced color)
 # ==============================================
 
-# Sidebar Filters with better contrast
+# Sidebar Filters
 with st.sidebar:
-    st.markdown("<h2 style='color: #4CAF50;'>🔍 Filters</h2>", unsafe_allow_html=True)
+    st.header("🔍 Filters")
     
     # Domain selection
     selected_domain = st.selectbox(
@@ -164,7 +99,7 @@ with st.sidebar:
     )
     
     # Commodity type selection
-    st.markdown("<p style='color: #B0B0B0;'>3. Commodity Type</p>", unsafe_allow_html=True)
+    st.markdown("3. Commodity Type")
     commodity_type = st.radio(
         "",
         list(COMMODITIES.keys()),
@@ -194,7 +129,7 @@ with st.sidebar:
     )
     
     # Year range
-    st.markdown("<p style='color: #B0B0B0;'>7. Year Range</p>", unsafe_allow_html=True)
+    st.markdown("7. Year Range")
     year_range = st.slider(
         "",
         1961, dt.datetime.now().year,
@@ -203,21 +138,19 @@ with st.sidebar:
     )
     
     st.markdown("---")
-    st.markdown("""
-    <div style='color: #B0B0B0;'>
-    <p><strong>About FAOSTAT</strong>:<br>
-    The Food and Agriculture Organization's statistical database covering:</p>
-    <ul>
-        <li>📈 Agricultural production</li>
-        <li>🌍 Trade flows</li>
-        <li>🍲 Food security</li>
-        <li>🌱 Climate impacts</li>
-    </ul>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown(
+        """
+        **About FAOSTAT**:
+        The Food and Agriculture Organization's statistical database covering:
+        - 📈 Agricultural production
+        - 🌍 Trade flows
+        - 🍲 Food security
+        - 🌱 Climate impacts
+        """
+    )
 
 # ==============================================
-# DATA FETCHING FUNCTION (Same as before)
+# DATA FETCHING FUNCTION
 # ==============================================
 
 @st.cache_data(ttl=24*3600)
@@ -275,10 +208,10 @@ def fetch_faostat_data(domain, metric, item_code, country_code, start_year, end_
         return None
 
 # ==============================================
-# MAIN DISPLAY (Improved Visual Hierarchy)
+# MAIN DISPLAY
 # ==============================================
 
-# Fetch button with better contrast
+# Fetch button
 col1, col2 = st.columns([3, 1])
 with col1:
     if st.button("🚀 Fetch Data", use_container_width=True, type="primary"):
@@ -312,9 +245,9 @@ if 'faostat_data' in st.session_state:
     df = st.session_state.faostat_data
     query = st.session_state.current_query
     
-    # Metrics cards with improved styling
+    # Metrics cards
     st.markdown("---")
-    st.markdown("<h3 style='color: #4CAF50;'>Key Metrics</h3>", unsafe_allow_html=True)
+    st.subheader("Key Metrics")
     col1, col2, col3 = st.columns(3)
     with col1:
         st.metric(
@@ -337,49 +270,43 @@ if 'faostat_data' in st.session_state:
             help=f"Percentage change from {year_range[0]} to {year_range[1]}"
         )
     
-    # Main dataframe with better contrast
+    # Main dataframe
     st.markdown("---")
-    st.markdown(f"<h3 style='color: #4CAF50;'>{query['metric']} of {query['commodity']} in {query['country']}</h3>", unsafe_allow_html=True)
+    st.subheader(f"{query['metric']} of {query['commodity']} in {query['country']}")
     st.dataframe(
-        df.style.applymap(lambda x: 'color: #B0B0B0' if isinstance(x, str) else 'color: white'),
+        df,
         hide_index=True,
         use_container_width=True,
         height=min(400, 35 * (len(df) + 1))
     )
     
-    # Visualization tabs with dark theme charts
+    # Visualization tabs
     st.markdown("---")
     tab1, tab2 = st.tabs(["📈 Time Series Analysis", "📊 Statistical Insights"])
     
     with tab1:
-        # Set dark background for matplotlib
-        plt.style.use('dark_background')
         fig, ax = plt.subplots(figsize=(10, 5))
         
-        # Create plot with better contrast
+        # Create plot
         sns.lineplot(
             data=df, 
             x="Year", 
             y="Value", 
             marker="o",
-            color="#4CAF50",
+            color="blue",
             linewidth=2.5,
             markersize=8
         )
         
         # Customize plot appearance
-        ax.set_facecolor('#1E1E1E')
-        ax.grid(color='#2E2E2E', linestyle='--', linewidth=0.5)
         ax.set_title(
             f"{query['metric']} Trend ({query['country']})",
-            color='white',
             pad=20,
             fontsize=14
         )
-        ax.set_xlabel("Year", color='#B0B0B0')
+        ax.set_xlabel("Year")
         ax.set_ylabel(
-            f"{query['metric']} ({df.iloc[0]['Unit']})", 
-            color='#B0B0B0'
+            f"{query['metric']} ({df.iloc[0]['Unit']})"
         )
         
         # Rotate x-axis labels for better readability
@@ -388,11 +315,16 @@ if 'faostat_data' in st.session_state:
         # Adjust layout to prevent label cutoff
         plt.tight_layout()
         st.pyplot(fig)
+        
+        # Save chart to buffer for download
+        chart_buffer = io.BytesIO()
+        fig.savefig(chart_buffer, format='png', bbox_inches='tight')
+        chart_buffer.seek(0)
     
     with tab2:
         col1, col2 = st.columns(2)
         with col1:
-            st.markdown("<h4 style='color: #4CAF50;'>Descriptive Statistics</h4>", unsafe_allow_html=True)
+            st.subheader("Descriptive Statistics")
             stats_df = df["Value"].describe().to_frame().T
             st.dataframe(
                 stats_df.style.format("{:,.2f}"),
@@ -400,7 +332,7 @@ if 'faostat_data' in st.session_state:
             )
         
         with col2:
-            st.markdown("<h4 style='color: #4CAF50;'>Annual Changes</h4>", unsafe_allow_html=True)
+            st.subheader("Annual Changes")
             df["YoY Change"] = df["Value"].pct_change() * 100
             yoy_df = df[["Year", "YoY Change"]].dropna()
             st.dataframe(
@@ -409,9 +341,9 @@ if 'faostat_data' in st.session_state:
                 height=min(400, 35 * (len(yoy_df) + 1))
             )
     
-    # Export options with better contrast
+    # Export options
     st.markdown("---")
-    st.markdown("<h3 style='color: #4CAF50;'>Export Data</h3>", unsafe_allow_html=True)
+    st.subheader("Export Data")
     col1, col2 = st.columns(2)
     with col1:
         csv = df.to_csv(index=False)
@@ -423,26 +355,34 @@ if 'faostat_data' in st.session_state:
             use_container_width=True
         )
     with col2:
-        # In a real implementation, this would export the chart
         st.download_button(
             "📊 Download Chart as PNG",
-            b"",  # Placeholder for actual implementation
+            chart_buffer,
             file_name="FAOSTAT_chart.png",
-            disabled=True,
-            use_container_width=True,
-            help="Coming soon - will export the visualization as PNG"
+            mime="image/png",
+            use_container_width=True
         )
 
 # ==============================================
-# FOOTER (Improved Contrast)
+# FOOTER
 # ==============================================
 
 st.markdown("---")
-st.markdown("""
-<div style="text-align: center; color: #B0B0B0; padding: 20px;">
-    <p>Data sourced from <a href="https://www.fao.org/faostat" target="_blank" style="color: #4CAF50;">FAOSTAT</a> | 
-    UN Food and Agriculture Organization</p>
-    <p style="font-size: 0.8em;">Note: This demo uses simulated data. Real implementation requires FAOSTAT API access.</p>
-            
-</div>
-""", unsafe_allow_html=True)
+st.sidebar.caption(
+    "Built by [Muhammad Atif Latif](https://www.linkedin.com/in/muhammad-atif-latif-13a171318?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)"
+)
+linkedin = "https://raw.githubusercontent.com/M-Atif-Latif/kaggle/main/Data_Collection/FAO/images/linkedin.gif"
+kaggle = "https://raw.githubusercontent.com/M-Atif-Latif/kaggle/main/Data_Collection/FAO/images/kaggle.gif"
+share = "https://raw.githubusercontent.com/M-Atif-Latif/kaggle/main/Data_Collection/FAO/images/share.gif"
+
+st.sidebar.caption(
+    f"""
+        <div style='display: flex; align-items: center;'>
+            <a href = 'https://www.linkedin.com/in/muhammad-atif-latif-13a171318?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app'><img src='{linkedin}' style='width: 35px; height: 35px; margin-right: 25px;'></a>
+            <a href = 'https://www.kaggle.com/muhammadatiflatif'><img src='{kaggle}' style='width: 28px; height: 28px; margin-right: 25px;'></a>
+            <a href = 'https://m-atif-latif.github.io/Atif_protfolio/'><img src='{share}' style='width: 28px; height: 28px; margin-right: 25px;'></a>
+        </div>
+    """, unsafe_allow_html=True)
+st.sidebar.caption(
+    "This web app is a prototype and not affiliated with FAOSTAT. Data is simulated for demonstration purposes."
+)
