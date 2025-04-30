@@ -126,46 +126,20 @@ DOMAINS = {
 COMMODITIES = {
     "Crops": {
         "Wheat": 15, "Rice": 27, "Maize": 56, "Soybeans": 236, 
-        "Potatoes": 116, "Tomatoes": 388, "Coffee": 656, "Tea": 667,
-        "Barley": 78, "Sugarcane": 89, "Cotton": 92, "Bananas": 123,
-        "Oranges": 145, "Apples": 167, "Grapes": 189, "Peanuts": 210
+        "Potatoes": 116, "Tomatoes": 388, "Coffee": 656, "Tea": 667
     },
     "Livestock": {
-        "Beef": 867, "Poultry": 1058, "Milk": 882, "Eggs": 1062,
-        "Sheep": 1123, "Goat": 1145, "Pork": 1167, "Fish": 1189,
-        "Honey": 1201, "Wool": 1223, "Buffalo": 1245
+        "Beef": 867, "Poultry": 1058, "Milk": 882, "Eggs": 1062
     }
 }
+
 COUNTRIES = {
-    "Americas": {
-        "USA": 231, "Brazil": 21, "Canada": 39, 
-        "Mexico": 142, "Argentina": 10, "Chile": 45, 
-        "Colombia": 32, "Peru": 51, "Venezuela": 58
-    },
-    "Asia": {
-        "China": 351, "India": 100, "Pakistan": 165, 
-        "Japan": 110, "South Korea": 130, "Indonesia": 101, 
-        "Vietnam": 120, "Thailand": 140, "Malaysia": 150
-    },
-    "Europe": {
-        "France": 68, "Germany": 79, "Russia": 185, 
-        "Italy": 106, "United Kingdom": 234, "Spain": 210, 
-        "Netherlands": 150, "Sweden": 160, "Poland": 170
-    },
-    "Africa": {
-        "Nigeria": 159, "South Africa": 205, 
-        "Egypt": 59, "Kenya": 117, "Ethiopia": 62, 
-        "Ghana": 45, "Morocco": 78, "Algeria": 89
-    },
-    "Oceania": {
-        "Australia": 36, "New Zealand": 40, 
-        "Fiji": 90, "Papua New Guinea": 91, "Samoa": 92
-    },
-    "Middle East": {
-        "Saudi Arabia": 250, "Iran": 260, "Turkey": 270, 
-        "Iraq": 280, "Israel": 290, "Jordan": 300
-    }
+    "Americas": {"USA": 231, "Brazil": 21, "Canada": 39},
+    "Asia": {"China": 351, "India": 100, "Pakistan": 165},
+    "Europe": {"France": 68, "Germany": 79, "Russia": 185},
+    "Africa": {"Nigeria": 159, "South Africa": 205}
 }
+
 # ==============================================
 # UI COMPONENTS (Improved Contrast)
 # ==============================================
@@ -464,23 +438,11 @@ if 'faostat_data' in st.session_state:
 # ==============================================
 
 st.markdown("---")
-st.sidebar.caption(
-    "Built by [Muhammad Atif Latif](https://www.linkedin.com/in/muhammad-atif-latif-13a171318?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app)"
-)
-linkedin = "https://raw.githubusercontent.com/M-Atif-Latif/kaggle/main/Data_Collection/FAO/images/linkedin.gif"
-kaggle = "https://raw.githubusercontent.com/M-Atif-Latif/kaggle/main/Data_Collection/FAO/images/kaggle.gif"
-share = "https://raw.githubusercontent.com/M-Atif-Latif/kaggle/main/Data_Collection/FAO/images/share.gif"
-#https://github.com/M-Atif-Latif/kaggle/blob/main/Data_Collection/FAO/images/kaggle.gif
-
-st.sidebar.caption(
-    f"""
-        <div style='display: flex; align-items: center;'>
-            <a href = 'https://www.linkedin.com/in/muhammad-atif-latif-13a171318?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app'><img src='{linkedin}' style='width: 35px; height: 35px; margin-right: 25px;'></a>
-            <a href = 'https://www.kaggle.com/muhammadatiflatif'><img src='{kaggle}' style='width: 28px; height: 28px; margin-right: 25px;'></a>
-            <a href = 'https://linktr.ee/muhammadatiflatif'><img src='{share}' style='width: 28px; height: 28px; margin-right: 25px;'></a>
-                    
+st.markdown("""
+<div style="text-align: center; color: #B0B0B0; padding: 20px;">
+    <p>Data sourced from <a href="https://www.fao.org/faostat" target="_blank" style="color: #4CAF50;">FAOSTAT</a> | 
+    UN Food and Agriculture Organization</p>
+    <p style="font-size: 0.8em;">Note: This demo uses simulated data. Real implementation requires FAOSTAT API access.</p>
+            
 </div>
 """, unsafe_allow_html=True)
-st.sidebar.caption(
-    "This web app is a prototype and not affiliated with FAOSTAT. Data is simulated for demonstration purposes."
-)
